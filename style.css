@@ -1,0 +1,62 @@
+body { 
+    font-family: 'Inter', sans-serif; 
+    background: #f8fafc; 
+    color: #0f172a; 
+    height: 100vh; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+}
+
+/* Scrollbars personalizados */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Animaciones */
+.log-item { animation: fadeIn 0.3s ease-out forwards; border-left: 3px solid transparent; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.loading-bar { 
+    position: fixed; top: 0; left: 0; height: 3px; 
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6); 
+    transition: width 0.3s; z-index: 1000; 
+}
+
+/* Botones de acción */
+.action-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; border: 1px solid;
+    transition: all 0.2s;
+}
+
+/* Estilos para Tarjetas de Personaje en Visualizador */
+.char-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+.char-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+/* Estilos para Timeline en Visualizador */
+.timeline-node { position: relative; }
+.timeline-dot {
+    position: absolute; left: -41px; top: 6px;
+    width: 16px; height: 16px;
+    background: #3b82f6;
+    border: 3px solid #f1f5f9;
+    border-radius: 50%;
+    z-index: 10;
+}
+.timeline-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}

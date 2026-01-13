@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Mundos IA - Standalone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loading-bar" class="loading-bar" style="width: 0%"></div>
+
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10 shrink-0 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md">
+                <i class="fa-solid fa-dragon text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-slate-800 text-lg leading-tight">Generador de Mundos <span class="text-indigo-600 text-xs uppercase px-2 py-0.5 bg-indigo-50 rounded-full border border-indigo-100">Standalone</span></h1>
+                <div class="flex items-center gap-2 text-[11px] text-slate-500">
+                    <span id="status-indicator" class="w-2 h-2 rounded-full bg-red-400"></span>
+                    <span id="status-text">Sistema Offline</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex bg-slate-100 p-1 rounded-lg">
+            <button onclick="app.switchTab('extractor')" id="tab-extractor" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-white text-indigo-600 shadow-sm">
+                <i class="fa-solid fa-bolt mr-2"></i>Extractor
+            </button>
+            <button onclick="app.switchTab('viewer')" id="tab-viewer" class="px-4 py-1.5 rounded-md text-sm font-medium text-slate-500 hover:text-slate-700 transition-all">
+                <i class="fa-solid fa-eye mr-2"></i>Visualizador
+            </button>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <input type="file" id="json-upload" accept=".json" class="hidden" onchange="app.uploadJSON(this)">
+            
+            <button onclick="document.getElementById('json-upload').click()" class="action-btn text-slate-600 border-slate-300 hover:bg-slate-50" title="Cargar JSON">
+                <i class="fa-solid fa-upload"></i>
+            </button>
+            
+            <button onclick="app.downloadJSON()" class="action-btn text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100" title="Descargar JSON">
+                <i class="fa-solid fa-download"></i>
+            </button>
+
+            <div class="h-8 w-px bg-slate-200 mx-2"></div>
+
+            <button id="auth-btn" onclick="loginPollinations()" class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-yellow-400 hover:bg-yellow-300 text-black shadow-sm">
+                CONECTAR IA
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-hidden relative">
+        
+        <div id="view-extractor" class="absolute inset-0 flex bg-slate-50 transition-opacity duration-300 z-10">
+            <div class="w-1/2 flex flex-col p-6 border-r border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+                        <i class="fa-solid fa-paragraph text-slate-400"></i> Texto Fuente
+                    </h2>
+                    <button onclick="document.getElementById('source-text').value=''" class="text-xs text-slate-400 hover:text-red-500">Limpiar</button>
+                </div>
+                <textarea id="source-text" class="flex-1 w-full p-5 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none text-sm leading-relaxed shadow-sm transition-all font-mono" 
+                placeholder="Pega aquí tu capítulo, historia o idea..."></textarea>
+                
+                <div class="mt-6 flex justify-end">
+                    <button onclick="app.startProcess()" id="btn-generate" class="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-wand-magic-sparkles text-yellow-400"></i> 
+                        <span>Analizar y Generar</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="w-1/2 flex flex-col bg-white">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wide">Registro de Procesos</h2>
+                    <span id="timer" class="font-mono text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded">00:00</span>
+                </div>
+                <div id="process-log" class="flex-1 overflow-y-auto p-4 space-y-2 font-mono text-xs bg-slate-50/50">
+                    <div class="text-center text-slate-400 mt-10">Esperando input...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-viewer" class="absolute inset-0 flex flex-col bg-slate-100 overflow-hidden opacity-0 pointer-events-none transition-opacity duration-300 z-0">
+            <div class="flex-1 overflow-y-auto p-8">
+                
+                <div class="mb-12">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3 border-b border-slate-300 pb-3">
+                        <i class="fa-solid fa-users text-indigo-500"></i> Personajes Detectados
+                    </h3>
+                    <div id="viz-characters" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="text-slate-400 text-sm italic">No hay datos. Ejecuta el extractor o carga un JSON.</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3 border-b border-slate-300 pb-3">
+                        <i class="fa-solid fa-timeline text-blue-500"></i> Cronología Maestra
+                    </h3>
+                    <div id="viz-timeline" class="relative pl-8 border-l-2 border-slate-300 space-y-8 ml-4">
+                         </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
